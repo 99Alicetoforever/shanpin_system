@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>商品类型管理</title>
+<link rel="shortcut icon" href="../images/yc2.png" type="image/x-icon" />
+<script type="text/javascript" src="../js/jquery-1.12.4.js"></script>
+<script type="text/javascript">
+
+  //进来的时候就应该把所有的商品类别全部加载进来
+    $(function(){
+        $.get("/getAllTypes",null,function (data) {
+            if(data.length>0){
+                $.each(data,function(index,item){
+                    //javascript:void(0) 作用在a标签上，可以阻止a标签的浏览器默认行为，跳转网页，
+                    // 让a标签可以触发点击事件
+                    $("#goodsTypeInfo").append($("<tr><td>"+item.tid+"</td>"+
+                            "<td>"+item.tname+"</td>"+
+                            "<td><a href='javascript:void(0)' onclick='delGoodsType("+item.tid+")'>删除</td>"+
+                            "</tr>"));
+                });
+            }else{
+                $("body").append($("<h1 style='color:red;text-align:center'>暂无数据</h1>"));
+            }
+        });
+    })
+
+    function addGoodsType(){
+        var tname=$("#tname").val();
+        $.post("/addGoodsType",{tname:tname},function (data) {
+            if(data=="1"){
+                alert("商品类型名重复，请重新添加");
+            }else{
+                $("#tname").val("");
+                location.reload();
+            }
+        });
+    }
+
+    function delGoodsType(tid){
+        var flag=confirm("确定删除数据吗");
+        if(flag){
+            $.post("/delGoodsType",{tid:tid},function(data){
+                if(data=="0"){
+                    alert("网络连接失败，请自行了断")
+                }else if(data=="1"){
+                    location.reload();
+                }
+            });
+        }
+    }
+
+
+</script>
+</head>
+<body>
+    <fieldset>
+        <legend>添加商品类型</legend>
+        商品类型名称：<input type="text" name="tname" id="tname">
+        <input type="button" value="添加" onclick="addGoodsType()">
+    </fieldset>
+
+    <fieldset>
+        <legend>已有商品类型信息</legend>
+        <table align="center" width="60%" border="1px" cellpadding="0px" cellspacing="0px">
+            <thead>
+                <tr>
+                    <th>商品类型编号</th>
+                    <th>商品类型名称</th>
+                    <th>商品类型操作</th>
+                </tr>
+            </thead>
+            <tbody id="goodsTypeInfo" align="center">
+
+            </tbody>
+        </table>
+    </fieldset>
+</body>
+</html>
